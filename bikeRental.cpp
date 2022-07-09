@@ -3,6 +3,7 @@
 #include "client.h"
 #include "admin.h"
 #include "bikeRental.h"
+#include "bike.h"
 #include "rentalHistory.h"
 #include <fstream>
 #include <vector>
@@ -12,54 +13,95 @@
 #include <filesystem>
 #include <cstdio>
 
-
-
-bool isBikePresent(std::string bike)
+Bike getBike(std::string bikeName)
 {
     try
     {
-        fstream newfile;
-        newfile.open("bikesdata.txt",ios::in); 
-        if (newfile.is_open()){   
-            string tp;
-            while(getline(newfile, tp)){ 
-                if(tp.compare(bike)==0)
-                    return true;
-            }
-            newfile.close(); 
-        }
-        else{
+        std::ifstream infile("bikes.dat");
+        if(!infile)
+        {
             throw("Data file for Bikes is not created");
         }
-
-        return false;
+        else
+        {
+            std::string name;
+            double cost;
+            while (infile >> name >> cost)
+            {
+                if(name.compare(bikeName)==0)
+                {
+                    infile.close();
+                    Bike bike(name,cost);
+                    return bike;
+                }
+            }
+        }
+        throw("Bike is not present in the database!\n");
     }
     catch(char const* exc)
     {
-        std::cerr<<"Exception occured when trying to read bikes data\n";
+        std::cerr<<"Exception occured when trying to get bikes\n";
         std::cerr<<exc;
         exit(1);
     }
     catch(...)
     {
-        std::cerr<<"Exception occured when trying to read bikes data\n";
+        std::cerr<<"Exception occured when trying to get bikes\n";
         exit(1); 
     }
 }
 
-std::vector<std::string> readAllBikes()
+bool isBikePresent(std::string bikeName)
 {
     try
     {
-        std::vector<std::string> listOfBikes;
-        fstream newfile;
-        newfile.open("bikesdata.txt",ios::in); 
-        if (newfile.is_open()){   
-            string tp;
-            while(getline(newfile, tp)){ 
-                listOfBikes.push_back(tp);
+        std::ifstream infile("bikes.dat");
+        if(!infile)
+        {
+            throw("Data file for Bikes is not created");
+        }
+        else
+        {
+            std::string name;
+            double cost;
+            while (infile >> name >> cost)
+            {
+                if(name.compare(bikeName)==0)
+                {
+                    infile.close();
+                    return true;
+                }
             }
-            newfile.close(); 
+        }
+        return false;
+    }
+    catch(char const* exc)
+    {
+        std::cerr<<"Exception occured when trying to get bikes\n";
+        std::cerr<<exc;
+        exit(1);
+    }
+    catch(...)
+    {
+        std::cerr<<"Exception occured when trying to get bikes\n";
+        exit(1); 
+    }
+}
+
+std::vector<Bike> readAllBikes()
+{
+    try
+    {
+        std::vector<Bike> listOfBikes;
+        std::ifstream infile("bikes.dat");
+        if (infile.is_open()){   
+            string name;
+            double cost;
+            while(infile >> name >> cost){
+                Bike bike(name,cost); 
+                listOfBikes.push_back(bike);
+            }
+            infile.close(); 
         }
         else{
             throw("Data file for Bikes is not created");
@@ -86,7 +128,7 @@ bool isLocationPresent(std::string location)
     try
     {
         fstream newfile;
-        newfile.open("operatingLocations.txt",ios::in); 
+        newfile.open("operatingLocations.dat",ios::in); 
         if (newfile.is_open()){   
             string tp;
             while(getline(newfile, tp)){ 
@@ -120,7 +162,7 @@ std::vector<std::string> readAllLocations()
     {
         std::vector<std::string> listOfLocations;
         fstream newfile;
-        newfile.open("operatingLocations.txt",ios::in); 
+        newfile.open("operatingLocations.dat",ios::in); 
         if (newfile.is_open()){   
             string tp;
             while(getline(newfile, tp)){ 
@@ -152,7 +194,7 @@ std::map<std::string,int> getAllClients()
 {
     try{
         std::map<std::string,int> clientList;
-        std::ifstream infile("clientindex.txt");
+        std::ifstream infile("client.idx");
         if(!infile)
         {
             throw("Index file for Client is not created");
@@ -212,7 +254,7 @@ std::vector<std::pair<std::string, int>> getSortedClientName()
 bool isAdminPresent(std::string name)
 {
     try{
-        std::ifstream infile("admindata.txt");
+        std::ifstream infile("admin.dat");
         if(!infile)
         {
             throw("Data file for Admin is not created");
@@ -222,7 +264,8 @@ bool isAdminPresent(std::string name)
             std::string temp_name;
             int temp_age;
             std::string temp_gender;
-            while (infile >> temp_name >> temp_age >> temp_gender)
+            std::string temp_password;
+            while (infile >> temp_name >> temp_age >> temp_gender>>temp_password)
             {
                 if(temp_name.compare(name)==0)
                 {
@@ -251,9 +294,13 @@ bool isAdminPresent(std::string name)
 Admin getAdmin(std::string adminName)
 {
     try{
-        if(isAdminPresent(adminName))
+        if(!isAdminPresent(adminName))
         {
-           std::ifstream infile("admindata.txt");
+            throw("Admin is not present in the system");
+        }
+        
+        
+           std::ifstream infile("admin.dat");
             if(!infile)
             {
                 throw("Data file for Admin is not created");
@@ -263,21 +310,18 @@ Admin getAdmin(std::string adminName)
                 std::string name;
                 int age;
                 std::string gender;
-                while (infile >> name >> age >> gender)
+                std::string password;
+                while (infile >> name >> age >> gender>>password)
                 {
                     if(name.compare(adminName)==0)
                     {
                         infile.close();
-                        Admin admin(name,age,gender);
-                        return admin;
+                        Admin admin(adminName,age,gender,password);
+                        return admin;                            
                     }
                 }
-            }  
-        }
-        else
-        {
-            throw("Admin is not present in the system");
-        }
+            }
+        throw("Could not find admin in the system!\n");  
     }
     catch(char const* exc)
     {
@@ -297,7 +341,7 @@ Admin getAdmin(std::string adminName)
 int isClientPresent(std::string name)
 {
     try{
-        std::ifstream infile("clientindex.txt");
+        std::ifstream infile("client.idx");
         if(!infile)
         {
             throw("Index file for Client is not created");
@@ -332,7 +376,7 @@ int isClientPresent(std::string name)
     
 }
 
-Client registerClient(std::string name,int age,std::string gender,std::string dlNo)
+Client registerClient(std::string name,int age,std::string gender,std::string dlNo,string password)
 {
     try{
         if(isClientPresent(name)!=-1)
@@ -340,18 +384,18 @@ Client registerClient(std::string name,int age,std::string gender,std::string dl
             throw("Client is already registered under the given name");
         }
 
-        Client client(name,age,gender,dlNo);
+        Client client(name,age,gender,dlNo,password);
         std::ofstream outfile;
         
 
-        outfile.open("clientdata.txt", std::ios_base::app); 
+        outfile.open("client.dat", std::ios_base::app); 
         auto pos=outfile.tellp(); 
 
-        outfile<<name<<" "<<age<<" "<<gender<<" "<<dlNo<<"\n";
+        outfile<<name<<" "<<age<<" "<<gender<<" "<<dlNo<<" "<<password<<"\n";
         outfile.close();
 
         std::ofstream indexfile;
-        indexfile.open("clientindex.txt", std::ios_base::app); 
+        indexfile.open("client.idx", std::ios_base::app); 
 
         indexfile<<name<<" "<<pos<<"\n";
         indexfile.close();
@@ -387,7 +431,8 @@ Client getClient(std::string clientName)
             int age;
             std::string gender;
             std::string dlNo;
-            std::ifstream datafile("clientdata.txt");
+            std::string password;
+            std::ifstream datafile("client.dat");
             if(!datafile)
             {
                 throw("Data file does not exist");
@@ -395,8 +440,8 @@ Client getClient(std::string clientName)
             else
             {
                 datafile.seekg(pos,ios::beg);
-                datafile>>name>>age>>gender>>dlNo;
-                Client client(name,age,gender,dlNo);
+                datafile>>name>>age>>gender>>dlNo>>password;
+                Client client(name,age,gender,dlNo,password); //Buffering!
                 return client;
             }
         }
@@ -414,10 +459,24 @@ Client getClient(std::string clientName)
     } 
 }
 
+bool checkPassword(Client client,std::string password)
+{
+     if(client.getPassword().compare(password)==0)
+        return true;
+    return false;
+}
+
+bool checkPassword(Admin admin,std::string password)
+{
+     if(admin.getPassword().compare(password)==0)
+        return true;
+    return false;
+}
+
 int isRentalPresent(std::string clientName)
 {
     try{
-        std::ifstream infile("rentalhistoryindex.txt");
+        std::ifstream infile("rentalhistory.idx");
         if(!infile)
         {
             throw("Index file for Rental History is not created");
@@ -451,26 +510,106 @@ int isRentalPresent(std::string clientName)
     }
 }
 
-RentalHistory addRental(std::string clientName, std::string bike, std::string location, std::string date)
+RentalHistory deleteRental(RentalHistory& rentalHistory)
+{
+    std::cout<<"\n\n"<<rentalHistory.getDate()<<"\n\n";
+    try
+    {
+        int pos=isRentalPresent(rentalHistory.getClientName());
+        if(pos==-1)
+        {
+            throw("The rental history is not present in index file and cannot be deleted\n");
+        }
+        else
+        {
+            std::ofstream outfile;
+        
+            std::ifstream filein("rentalhistory.dat"); 
+            std::ofstream fileout("rentalhistorydatatemp.dat"); 
+            if(!filein || !fileout)
+            {
+                throw("Error opening files!\n");
+            }
+
+            std::string bike;
+            std::string location;
+            std::string clientName;
+            std::string date;
+            int status;
+            int tempPos;
+            double cost;
+
+            
+            while(filein>>bike>>location>>clientName>>date>>cost>>status>>tempPos)
+            {
+                RentalHistory rentalHistory2(bike,location,clientName,date,cost,status,tempPos);
+                if(rentalHistory2==rentalHistory)
+                {
+                    status=2;
+                    fileout<<bike<<" "<<location<<" "<<clientName<<" "<<date<<" "<<cost<<" "<<status<<" "<<tempPos<<"\n";
+                }
+                else 
+                {
+                    fileout<<bike<<" "<<location<<" "<<clientName<<" "<<date<<" "<<cost<<" "<<status<<" "<<tempPos<<"\n";
+                }
+            }
+            filein.close();
+            fileout.close();
+
+            std::ifstream filein1("rentalhistorydatatemp.dat"); 
+            std::ofstream fileout1("rentalhistory.dat"); 
+            if(!filein1 || !fileout1)
+            {
+                throw("Error opening files!\n");
+            }
+
+            while(filein1>>bike>>location>>clientName>>date>>cost>>status>>tempPos)
+            {
+                    fileout1<<bike<<" "<<location<<" "<<clientName<<" "<<date<<" "<<cost<<" "<<status<<" "<<tempPos<<"\n";
+            }
+            filein1.close();
+            fileout1.close();
+            
+            char fileName[]="rentalhistorydatatemp.dat";
+            std::remove(fileName);
+
+            return RentalHistory(rentalHistory.getBike(),rentalHistory.getLocation(),rentalHistory.getClientName(),rentalHistory.getDate(),rentalHistory.getCost(),2,rentalHistory.getNextHistory());
+        }
+    }
+    catch(char const* exc)
+    {
+        std::cerr<<"Exception occured when trying to delete rental history\n";
+        std::cerr<<exc;
+        exit(1);
+    }
+    catch(...)
+    {
+        std::cerr<<"Exception occured when trying to delete rental history\n";
+        exit(1); 
+    }
+    
+}
+
+RentalHistory addRental(std::string clientName, std::string bike, std::string location, std::string date, double cost, int status)
 {
     try
     {
         int pos=isRentalPresent(clientName);
         if(pos==-1)
         {
-            RentalHistory rentalHistory(bike,location,clientName,date,-1);
+            RentalHistory rentalHistory(bike,location,clientName,date,cost,status,-1);
 
             std::ofstream outfile;
         
 
-            outfile.open("rentalhistorydata.txt", std::ios_base::app); 
+            outfile.open("rentalhistory.dat", std::ios_base::app); 
             auto pos=outfile.tellp(); 
 
-            outfile<<bike<<" "<<location<<" "<<clientName<<" "<<date<<" "<<-1<<"\n";
+            outfile<<bike<<" "<<location<<" "<<clientName<<" "<<date<<" "<<cost<<" "<<status<<" "<<-1<<"\n";
             outfile.close();
 
             std::ofstream indexfile;
-            indexfile.open("rentalhistoryindex.txt", std::ios_base::app); 
+            indexfile.open("rentalhistory.idx", std::ios_base::app); 
 
             indexfile<<clientName<<" "<<pos<<"\n";
             indexfile.close();
@@ -480,18 +619,18 @@ RentalHistory addRental(std::string clientName, std::string bike, std::string lo
         else
         {
            
-            RentalHistory rentalHistory(bike,location,clientName,date,pos);
+            RentalHistory rentalHistory(bike,location,clientName,date,cost,status,pos);
 
             std::ofstream outfile;
         
-            outfile.open("rentalhistorydata.txt", std::ios_base::app); 
+            outfile.open("rentalhistory.dat", std::ios_base::app); 
             auto writePos=outfile.tellp(); 
 
-            outfile<<bike<<" "<<location<<" "<<clientName<<" "<<date<<" "<<pos<<"\n";
+            outfile<<bike<<" "<<location<<" "<<clientName<<" "<<date<<" "<<cost<<" "<<status<<" "<<pos<<"\n";
             outfile.close();
 
-            std::ifstream filein("rentalhistoryindex.txt"); 
-            std::ofstream fileout("rentalhistoryindextemp.txt"); 
+            std::ifstream filein("rentalhistory.idx"); 
+            std::ofstream fileout("rentalhistoryindextemp.idx"); 
             if(!filein || !fileout)
             {
                 throw("Error opening files!\n");
@@ -513,8 +652,8 @@ RentalHistory addRental(std::string clientName, std::string bike, std::string lo
             filein.close();
             fileout.close();
 
-            std::ifstream filein1("rentalhistoryindextemp.txt"); 
-            std::ofstream fileout1("rentalhistoryindex.txt"); 
+            std::ifstream filein1("rentalhistoryindextemp.idx"); 
+            std::ofstream fileout1("rentalhistory.idx"); 
             if(!filein1 || !fileout1)
             {
                 throw("Error opening files!\n");
@@ -527,7 +666,7 @@ RentalHistory addRental(std::string clientName, std::string bike, std::string lo
             filein1.close();
             fileout1.close();
             
-            char fileName[]="rentalhistoryindextemp.txt";
+            char fileName[]="rentalhistoryindextemp.idx";
             std::remove(fileName);
 
             return rentalHistory;
@@ -566,11 +705,13 @@ std::vector<RentalHistory> getAllRentalHistory(std::string clientName)
                 std::string name;
                 std::string date;
                 int tempPos;
+                int status;
+                double cost;
 
-                std::ifstream filein("rentalhistorydata.txt");  
+                std::ifstream filein("rentalhistory.dat");  
                 filein.seekg(pos,ios::beg);
-                filein>>bike>>location>>name>>date>>tempPos;
-                RentalHistory rentalHistory(bike,location,name,date,tempPos);
+                filein>>bike>>location>>name>>date>>cost>>status>>tempPos;
+                RentalHistory rentalHistory(bike,location,name,date,cost,status,tempPos);
                 rentalList.push_back(rentalHistory);
                 pos=tempPos;
             }

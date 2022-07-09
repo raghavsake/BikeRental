@@ -1,7 +1,7 @@
 #include "client.h"
 
-Client::Client(string name,int age,string gender,string dlNo)
-    : name_(name), age_(age), gender_(gender), dlNo_(dlNo)
+Client::Client(string name,int age,string gender,string dlNo,string password)
+    : name_(name), age_(age), gender_(gender), dlNo_(dlNo), password_(password)
     {
 
     }
@@ -24,4 +24,9 @@ int Client::getAge()
 string Client::getDlNo()
 {
     return dlNo_;
+}
+
+string Client::getPassword()
+{
+    return password_;
 }
