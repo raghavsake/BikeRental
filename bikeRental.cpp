@@ -224,6 +224,7 @@ std::map<std::string,int> getAllClients()
     }
 }
 
+
 std::vector<std::pair<std::string, int> > getSortedClientName()
 {
     try{

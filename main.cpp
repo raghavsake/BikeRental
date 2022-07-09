@@ -223,7 +223,7 @@ void viewRentBike(Client& client)
     std::cout<<"------------------------------------------------------------------------\n\n";
     std::cout<<"                 INVOICE\n\n";
     std::cout<<"The number of days you want "<<bike.getName()<<" is "<<noOfDays<<" days\n";
-    std::cout<<"Your total cost of this rental is "<<cost<<"\n";
+    std::cout<<"Your approximate total cost of this rental is "<<cost<<"\n";
     std::cout<<"Succesfully registered a ticket for your rental!\n";
     std::cout<<"------------------------------------------------------------------------\n\n";
 
