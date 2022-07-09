@@ -19,7 +19,7 @@ Admin getAdmin(std::string adminName);
 std::vector<Bike> readAllBikes();
 std::vector<std::string> readAllLocations();
 std::map<std::string,int> getAllClients();
-std::vector<std::pair<std::string, int>> getSortedClientName();
+std::vector<std::pair<std::string, int> > getSortedClientName();
 int isRentalPresent(std::string clientName);
 RentalHistory addRental(std::string clientName, std::string bike, std::string location, std::string date, double cost, int status);
 bool isLocationPresent(std::string location);

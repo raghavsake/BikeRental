@@ -224,7 +224,7 @@ std::map<std::string,int> getAllClients()
     }
 }
 
-std::vector<std::pair<std::string, int>> getSortedClientName()
+std::vector<std::pair<std::string, int> > getSortedClientName()
 {
     try{
         std::map<std::string,int> clientList=getAllClients();
@@ -389,7 +389,8 @@ Client registerClient(std::string name,int age,std::string gender,std::string dl
         
 
         outfile.open("client.dat", std::ios_base::app); 
-        auto pos=outfile.tellp(); 
+        outfile.seekp(0,ios::end);
+        int pos=outfile.tellp(); 
 
         outfile<<name<<" "<<age<<" "<<gender<<" "<<dlNo<<" "<<password<<"\n";
         outfile.close();
@@ -603,6 +604,7 @@ RentalHistory addRental(std::string clientName, std::string bike, std::string lo
         
 
             outfile.open("rentalhistory.dat", std::ios_base::app); 
+            outfile.seekp(0,ios::end);
             auto pos=outfile.tellp(); 
 
             outfile<<bike<<" "<<location<<" "<<clientName<<" "<<date<<" "<<cost<<" "<<status<<" "<<-1<<"\n";
@@ -624,6 +626,7 @@ RentalHistory addRental(std::string clientName, std::string bike, std::string lo
             std::ofstream outfile;
         
             outfile.open("rentalhistory.dat", std::ios_base::app); 
+            outfile.seekp(0,ios::end);
             auto writePos=outfile.tellp(); 
 
             outfile<<bike<<" "<<location<<" "<<clientName<<" "<<date<<" "<<cost<<" "<<status<<" "<<pos<<"\n";

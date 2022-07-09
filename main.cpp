@@ -48,7 +48,7 @@ void viewSortedClientInfo()
 {
     std::cout<<"\n\nClient Info\n\n";
 
-    std::vector<std::pair<std::string, int>> sortedClientList=getSortedClientName();
+    std::vector<std::pair<std::string, int> > sortedClientList=getSortedClientName();
 
     if(sortedClientList.size()==0)
     {
