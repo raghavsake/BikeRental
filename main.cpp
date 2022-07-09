@@ -271,6 +271,9 @@ void viewDeleteRental(Client& client)
 
         if(isValidPastDate(rentalHistory.getDate()))
             continue;
+        
+        if(rentalHistory.getStatus().compare("Cancelled"))
+            continue;
 
         count+=1;
         std::cout<<"\n\nRental Number - "<<i;
@@ -294,6 +297,10 @@ void viewDeleteRental(Client& client)
         std::cout<<"\nYou have entered a wrong option!\n";
     }
     else if(choice2<=0|| choice2>rentalList.size())
+    {
+        std::cout<<"\nYou have entered a wrong option!\n";
+    }
+    else if(rentalList[choice2-1].getStatus().compare("Cancelled"))
     {
         std::cout<<"\nYou have entered a wrong option!\n";
     }
