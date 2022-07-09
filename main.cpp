@@ -258,6 +258,8 @@ void viewDeleteRental(Client& client)
 {
     std::cout<<"\n\nDelete Rental\n\n";
     std::vector<RentalHistory> rentalList=getAllRentalHistory(client.getName());
+    std::cout<<rentalList.size();
+    
     if(rentalList.size()==0)
     {
         std::cout<<"\nYou have not rented any bikes uptil now\n";
@@ -272,10 +274,10 @@ void viewDeleteRental(Client& client)
         if(isValidPastDate(rentalHistory.getDate()))
             continue;
         
-        if(rentalHistory.getStatus().compare("Cancelled"))
+        if(rentalHistory.getStatus().compare("Cancelled")==0)
             continue;
 
-        count+=1;
+        count++;
         std::cout<<"\n\nRental Number - "<<i;
         std::cout<<"\n"<<"Date - "<<rentalHistory.getDate()<<"\n";
         std::cout<<"Location - "<<rentalHistory.getLocation()<<"\n";
@@ -300,7 +302,7 @@ void viewDeleteRental(Client& client)
     {
         std::cout<<"\nYou have entered a wrong option!\n";
     }
-    else if(rentalList[choice2-1].getStatus().compare("Cancelled"))
+    else if(rentalList[choice2-1].getStatus().compare("Cancelled")==0)
     {
         std::cout<<"\nYou have entered a wrong option!\n";
     }
